@@ -8,19 +8,23 @@
         <field name="arch" type="xml">
 
             <xpath expr="//button[@name='action_cancel']" position="before">
-                <button name="action_send_invitation" type="object" string="Invite Vendors" />
+                <button name="%(ak_tender_batch_invitation.action_invite_vendors)d" class="btn-primary" type="action" string="Invite Vendors"  attrs="{'invisible': ['|',('state', 'in', ['draft', 'done', 'cancel']), ('is_quantity_copy','=','none')]}"/>/>
             </xpath>
-            <xpath expr="//page[@name='products']" position="after">
-                <page string="Vendors" name="Vendors" >
+
+            <xpath expr="//page[@name='products']" position="after" >
+                <page string="Vendors" name="Vendors"  attrs="{'invisible': [('is_quantity_copy', '=', 'none')]}">
                         <field name="partner_ids" nolabel="1">
-                            <tree editable="top">
+                            <tree editable="bottom">
                                 <field name="partner_id"/>
-                                <field name="invitation_state"/>
+                                <field name="invitation_state" readonly="1"/>
+                                <field name="purchase_order_id" readonly="1"/>
                             </tree>
                         </field>
                 </page>
             </xpath>
+
         </field>
     </record>
+
 
 </odoo>
