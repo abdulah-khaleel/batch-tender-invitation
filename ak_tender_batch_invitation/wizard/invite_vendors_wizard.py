@@ -6,8 +6,7 @@ class InviteVendorsWizard(models.TransientModel):
     _name = 'invite.vendors.wizard'
     _description = 'Create RFQs in batch'
 
-    # borrower_ids = fields.Many2many('res.partner', string="Borrowers")
-    # misc = fields.Char('Misc')
+    error_message = 'No vendors Found for this agreement.'
 
     def get_requisition_lines(self, requisition_id):
         lines_list = []
@@ -16,13 +15,13 @@ class InviteVendorsWizard(models.TransientModel):
                 'product_id': line.product_id.id,
                 'name': line.product_id.name,
                 'product_qty': line.product_qty,
-                # 'product_uom_id': line.product_uom_id.id,
+                'product_uom': line.product_uom_id.id,
                 'price_unit': line.price_unit,
-                'date_planned': requisition_id.date_end,
+                # 'date_planned': line.schedule_date or fields.Date.today(),
             }))
         return lines_list
 
-    def display_notification(self,title, message, type, action):
+    def display_notification(self,title, message, type):
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -31,35 +30,32 @@ class InviteVendorsWizard(models.TransientModel):
                 'message': message,
                 'type': type,
                 'sticky': False,
-                'next': action,
+                'next':  {'type': 'ir.actions.act_window_close'},
             }
         }
 
-
     def create_rfq_for_vendor(self, partner_line, requisition_id):
-        print('generating rfq for vendor: ', partner_line.partner_id.name)
         purchase_order_id = self.env['purchase.order'].create({
             'partner_id': partner_line.partner_id.id,
             'requisition_id': requisition_id.id,
             'origin': requisition_id.name,
-            'date_order': requisition_id.date_end or fields.Date.today(),
+            'notes': requisition_id.description,
+            'date_order': requisition_id.schedule_date or fields.Date.today(),
+            'date_planned': requisition_id.schedule_date or fields.Date.today(),
             'order_line': self.get_requisition_lines(requisition_id)
         })
         return purchase_order_id
 
     def send_rfq_email(self, partner_id, purchase_order_id):
         if partner_id.email:
-            print('sending invitation to vendor: ', partner_id.name)
             template = self.env.ref('purchase.email_template_edi_purchase')
             template.send_mail(purchase_order_id.id, force_send=False)
             purchase_order_id.state = 'sent'
             return True
         else:
-            print(f'No email address for vendor: {partner_id.name}')
             return False
 
     def action_create_rfq_with_email(self):
-        # get requisition_id with model as active id from context:
         new_vendors_count = 0
         requisition_id = self.env['purchase.requisition'].browse(self._context.get('active_id'))
         for partner_line in requisition_id.partner_ids:
@@ -69,21 +65,20 @@ class InviteVendorsWizard(models.TransientModel):
                 purchase_order_id = self.create_rfq_for_vendor(partner_line, requisition_id)
                 partner_line.purchase_order_id = purchase_order_id.id
                 # send the email to vendor:
-                email_attempt = self.send_rfq_email(partner_line.partner_id, purchase_order_id)
-                if email_attempt:
+                email_sent = self.send_rfq_email(partner_line.partner_id, purchase_order_id)
+                if email_sent:
                     partner_line.invitation_state = 'sent_with_email'
                 else:
                     partner_line.invitation_state = 'sent'
-            else:
-                print('rfq already created for vendor: ', partner_line.partner_id.name)
-        #close current wizard:
         if new_vendors_count > 0:
-            return self.display_notification('Invites Sent', f'{new_vendors_count} new RFQ(s) created. Invites sent to vendors with email addresses.', 'success', {'type': 'ir.actions.act_window_close'}) 
+            return self.display_notification('Invites Sent', f'{new_vendors_count} new RFQ(s) created.', 'success') 
         else:
-            return self.display_notification('No RFQs created', 'No new vendors found', 'danger', {'type': 'ir.actions.act_window_close'})
+            if len(requisition_id.partner_ids) == 0:
+                return self.display_notification('No Vendors', 'Please add vendors from the "Vendors" tab and try again.', 'danger')
+            else:
+                return self.display_notification('No RFQs created', 'No new vendors found', 'danger')
 
     def action_create_rfq_only(self):
-        # get requisition_id with model as active id from context:
         new_vendors_count = 0
         requisition_id = self.env['purchase.requisition'].browse(self._context.get('active_id'))
         for partner_line in requisition_id.partner_ids:
@@ -93,11 +88,12 @@ class InviteVendorsWizard(models.TransientModel):
                 purchase_order_id = self.create_rfq_for_vendor(partner_line, requisition_id)
                 partner_line.purchase_order_id = purchase_order_id.id
                 partner_line.invitation_state = 'sent'
-            else:
-                print('rfq already created for vendor: ', partner_line.partner_id.name)
         if new_vendors_count > 0:
-            return self.display_notification('RFQs created', f'{new_vendors_count} new RFQ(s) created.', 'success', {'type': 'ir.actions.act_window_close'})
+            return self.display_notification('RFQs created', f'{new_vendors_count} new RFQ(s) created.', 'success')
         else:
-            return self.display_notification('No RFQs created', 'No new vendors found', 'danger', {'type': 'ir.actions.act_window_close'})
+            if len(requisition_id.partner_ids) == 0:
+                return self.display_notification('No Vendors', 'Please add vendors from the "Vendors" tab and try again.', 'danger')
+            else:
+                return self.display_notification('No RFQs created', 'No new vendors found', 'danger')
 
 
