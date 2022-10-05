@@ -11,8 +11,8 @@
 ################################################################################# 
 
 {
-    'name': "Multiple Vendor Invitation to Tenders",   
-    'summary': "Create multiple RFQs in a Call for Tender and send out email invitations in batch",   
+    'name': "Invite Vendors in Batch",   
+    'summary': "Create multiple RFQs in a Call for Tender and send out email invitations to vendors in batch",   
     'description': """
         Create RFQs for multiple vendors in a call for tenders in batch. Send out email invitations 
         to multiple vendors when creating the RFQs.
@@ -25,10 +25,10 @@
     'depends': ['base','purchase','purchase_requisition'],
     'data': [
         'security/ir.model.access.csv',
-        'views/purchase_requisition_views.xml',
         'wizard/invite_vendors_wizard_views.xml',
+        'views/purchase_requisition_views.xml',
     ],
-    # 'images': ["static/description/banner-v15.png"],
+    'images': ["static/description/banner-v15.png"],
     'license': 'LGPL-3',
     'application': True,
     'installable': True,

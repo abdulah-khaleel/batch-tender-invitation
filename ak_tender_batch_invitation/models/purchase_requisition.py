@@ -21,8 +21,3 @@ class RequisitionVendors(models.Model):
     ], string="Invitation Status", default="new", required=True)
     purchase_order_id = fields.Many2one('purchase.order', string="RFQ", readonly=True)
 
-
-
-
-
-
