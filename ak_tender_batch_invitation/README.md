@@ -13,7 +13,7 @@ To create RFQs in batch:
 
 ## Versions
 
-The app is tested on Odoo versions `14.0` and `15.0` for both community and enterprise versions. Branches are named after Odoo versions respectively.
+The app is tested on Odoo version `16.0` for both community and enterprise versions. Branches are named after Odoo versions respectively.
 
 ## Issues
 

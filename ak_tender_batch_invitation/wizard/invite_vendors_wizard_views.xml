@@ -7,12 +7,8 @@
         <field name="arch" type="xml">
 
             <form string="Lost Reason">
-                <group class="" >
-                    <div>
-                        <p><span class="font-weight-bold mr-3">Create RFQs:</span>creates quotations for each of the vendors without sending emails.</p>
-                        <p><span class="font-weight-bold mr-3">Create RFQs with Emails:</span>an email with the RFQ is sent alongside each quotation created.</p>
-                    </div>
-                </group>
+                <p class="tip_content" >Create RFQs: creates quotations for each of the vendors without sending emails.</p>
+                <p class="tip_content" >Create RFQs with Emails: an email with the RFQ is sent alongside each quotation created.</p>
                 <footer>
                     <button name="action_create_rfq_only" string="Create RFQs" type="object" class="btn-primary" data-hotkey="q"/>
                     <button name="action_create_rfq_with_email" string="Create RFQs with Emails" type="object" class="btn-primary" data-hotkey="q"/>

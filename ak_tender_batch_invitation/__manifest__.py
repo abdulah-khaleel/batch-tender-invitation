@@ -20,7 +20,7 @@
     'author': "Abdullah Khalil",
     'website': "https://github.com/abdulah-khaleel",
     'category': 'Purchase',
-    'version': '14.0.0.0',
+    'version': '16.0.0.0',
      "license": "LGPL-3",
     'depends': ['base','purchase','purchase_requisition'],
     'data': [
@@ -28,7 +28,7 @@
         'wizard/invite_vendors_wizard_views.xml',
         'views/purchase_requisition_views.xml',
     ],
-    'images': ["static/description/banner-v14.png"],
+    'images': ["static/description/banner-v16.png"],
     'license': 'LGPL-3',
     'application': True,
     'installable': True,
